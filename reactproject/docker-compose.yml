@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  app:
+    image: node:18
+    container_name: node_app
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    volumes:
+      - /C/projects/project24/reactproject/server:/usr/src/app
+      - /usr/src/app/node_modules
+    working_dir: /usr/src/app
+    command: bash -c "npm install && npm start"
+    environment:
+      NODE_ENV: development
+    networks:
+      - mern-app
+    depends_on:
+      - mongo
+
+  react-server:
+    image: node:14
+    container_name: react_server
+    build: ./client/
+    ports:
+      - "3000:3000"
+    volumes:
+      - /C/projects/project24/reactproject/client:/usr/src/app
+      - /usr/src/app/node_modules
+    working_dir: /usr/src/app
+    environment:
+      - WATCHPACK_POLLING=true
+    command: bash -c "npm install && npm start dev"
+    networks:
+      - mern-app
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mern-app
+
+networks:
+  mern-app:
+
+volumes:
+  mongo-data:
